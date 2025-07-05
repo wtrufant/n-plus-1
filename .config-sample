@@ -1,4 +1,5 @@
 #! /bin/bash
+# shellcheck disable=SC2034 # Hide unused variable warning.
 
 #### Common
 MAX_D=3 # Max days
