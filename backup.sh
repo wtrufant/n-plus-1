@@ -8,6 +8,7 @@
 #TODO:
 # Logging
 # tar user dir exclusions, by user.
+# array to set "modules" to run via argument? or all by default?
 
 BASEDIR="$(dirname "$0")"
 
@@ -79,27 +80,6 @@ tar -C "/etc" -czf "${BASEDIR}/system/daily/etc-${BK_DATE}.tgz" .
 backups system
 
 
-### NextCloud
-: << NC
-
-Excludes: files_versions, files_trashbin
-
-alias occ='sudo -u apache php /data/www/io/https/occ'
-output=$($cmd)
-https://help.nextcloud.com/t/how-to-manually-delete-older-file-versions/26353/4
---- /data/www/io/https/data/myuser/files_versions -----------------------
-                                  /..
-    9.4 GiB [###################] /Music
-  567.5 MiB [#                  ] /RPG
-
---- /data/www/io/https/data/myuser/files_trashbin -----------------------
-                                  /..
-    2.7 GiB [###################] /files
-  178.1 MiB [#                  ] /versions
-e 512.0   B [                   ] /keys
-NC
-
-
 ##### Users ( set as array in .config file )
 if [ ! -d "${BASEDIR}/users/daily" ]; then mkdir -p "${BASEDIR}/users/daily"; fi
 # --exclude=pattern : VMs, snap, .local/share/Steam, .cache
@@ -113,3 +93,10 @@ backups users
 #### WWW
 
 
+### NextCloud
+if [ ! -d "${BASEDIR}/nextcloud/daily" ]; then mkdir -p "${BASEDIR}/nextcloud/daily"; fi
+
+sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --on
+tar -C "${NC_PATH}" --exclude="${NC_EXCL}" -czf "${BASEDIR}/nextcloud/daily/nextcloud-${BK_DATE}.tgz" .
+sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --off
+backups nextcloud
