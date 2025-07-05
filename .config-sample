@@ -14,7 +14,9 @@ export MYSQL_PWD='DB PW HERE' # https://mariadb.com/kb/en/mariadb-environment-va
 
 
 #### NextCloud
-
+NC_USER="apache" # User that runs your webserver
+NC_PATH="/full/path/to/occ-folder" # Folder where the occ file lives
+NC_EXCL="" # Exclusions
 
 #### Users
 USERS=(primaryuser root)
