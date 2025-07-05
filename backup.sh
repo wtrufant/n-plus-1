@@ -86,7 +86,7 @@ if [ ! -d "${BASEDIR}/users/daily" ]; then mkdir -p "${BASEDIR}/users/daily"; fi
 for U in "${USERS[@]}"; do
 	USERDIR="/${U}"
 	if [ "${U}" != "root" ]; then USERDIR="/home${USERDIR}"; fi
-	tar -C "${USERDIR}" --exclude='.gnupg/S.gpg-agent*' -czf "${BASEDIR}/users/daily/${U}-${BK_DATE}.tgz" .
+	tar -C "${USERDIR}" --exclude="${USER_EXCL}" -czf "${BASEDIR}/users/daily/${U}-${BK_DATE}.tgz" .
 done
 backups users
 

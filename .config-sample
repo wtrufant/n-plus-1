@@ -19,7 +19,8 @@ NC_PATH="/full/path/to/occ-folder" # Folder where the occ file lives
 NC_EXCL="" # Exclusions
 
 #### Users
-USERS=(primaryuser root)
+USERS=(primaryuser root) # User accounts to backup.  Assume: /root and /home/
+USER_EXCLUDE="" # Exclusions
 
 
 #### WWW
