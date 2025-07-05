@@ -1,40 +1,16 @@
 #! /bin/bash
 
-# This is set to run from wherever you clone this repo.  /backup seems best.
-# sudo mkdir /backups; sudo chmod 700 /backups; sudo git clone https://github.com/wtrufant/n-plus-1.git /backups
+# This is set to run from wherever you clone this repo.  /backups seems best.
+# git clone https://github.com/wtrufant/n-plus-1.git /backups; chmod 700 /backups
 
-: << CONFIG_FILE
-#! /bin/bash
-
-#### Common
-MAX_D=3 # Max days
-MAX_W=3 # Max weeks
-MAX_M=3 # Max months
-
-
-#### MariaDB
-export TAR_PWD='TAR PW HASH HERE' # openssl passwd -6
-
-# Variables for MariaDB Backups
-export MYSQL_PWD='DB PW HERE' # https://mariadb.com/kb/en/mariadb-environment-variables/
-
-
-#### NextCloud
-
-
-#### Users
-USERS=(primaryuser root)
-
-#### WWW
-
-
-CONFIG_FILE
-
-# shellcheck source=/dev/null
-source /root/.config/n-plus-1
-# Should probably do user detetection or "${SUDO_USER:-${USER}}" or something. But, it's likely root.
+# You can't hide secrets from the future with math.  https://youtu.be/yVm8oZx9WSM
 
 BASEDIR="$(dirname "$0")"
+
+# shellcheck source=/dev/null
+source "${BASEDIR}/.config" || exit 1
+# Should probably do user detetection or "${SUDO_USER:-${USER}}" or something. But, it's likely root.
+
 BK_DATE="$(date +%Y%m%d_%H%M)"
 MAX_D=$((MAX_D - 1))
 MAX_W=$((MAX_W * 7 - 1))
@@ -70,11 +46,9 @@ function backups() {
 		fi
 	fi
 
-	rclone sync "/backups/$1" "b2-wt3-callio:wt3-callio/$1"
+	rclone sync "/backups/$1" "${REMOTE}:${BUCKET}/$1"
 
 }
-
-if [ ! -f /root/.config/n-plus-1 ] || [ -z "${MYSQL_PWD}" ] || [ -z "${TAR_PWD}" ]; then exit 1; fi
 
 
 #### MariaDB

@@ -1,0 +1,23 @@
+#! /bin/bash
+
+#### Common
+MAX_D=3 # Max days
+MAX_W=3 # Max weeks
+MAX_M=3 # Max months
+REMOTE="remote_name" # rclone remote name
+BUCKET="bucket_name" # rclone bucket
+
+
+#### MariaDB
+export MYSQL_PWD='DB PW HERE' # https://mariadb.com/kb/en/mariadb-environment-variables/
+
+
+#### NextCloud
+
+
+#### Users
+USERS=(primaryuser root)
+
+
+#### WWW
+
