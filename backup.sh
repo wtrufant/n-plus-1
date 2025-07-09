@@ -16,19 +16,17 @@ BASEDIR="$(dirname "$0")"
 source "${BASEDIR}/.config" || exit 1
 # Should probably do user detetection or "${SUDO_USER:-${USER}}" or something. But, it's likely root.
 
-# Generate date stamp, and calculate the max day values.  We subtract 1 due to how `find` handles values.
+# Generate date stamp, and calculate the max day values.  We subtract 1 due to how `find` handles values.  Also set the cutoff by day at midnight, since HH:MM:SS may not line up exactly.
 BK_DATE="$(date +%Y%m%d_%H%M)"
-MAX_D=$((MAX_D - 1))
-MAX_W=$((MAX_W * 7 - 1))
-MAX_M=$((MAX_M * 30 - 1))
-
-# TODO: Move the tarring out of the function.  For things like NC, it's a lot less to do.
+MAX_D=$(date -d "-$((MAX_D - 1)) days" +%Y-%m-%d)
+MAX_W=$(date -d "-$((MAX_W * 7 - 1)) days" +%Y-%m-%d)
+MAX_M=$(date -d "-$((MAX_M * 30 - 1)) days" +%Y-%m-%d)
 
 function backups() {
 
 	# Clean old dailies every day, if we have more than the max.
 	if [ "$(find "${BASEDIR}/$1/daily" -type f -name "*.tgz" | wc -l)" -gt "${MAX_D}" ]; then
-		find "${BASEDIR}/$1/daily" -type f -name "*.tgz" -mtime "+${MAX_D}" -delete
+		find "${BASEDIR}/$1/daily" -type f -name "*.tgz" ! -newermt "+${MAX_D}" -delete
 	fi
 
 	# Clean old weeklies on Sunday, if we have more than the max.
@@ -36,7 +34,7 @@ function backups() {
 		if [ ! -d "${BASEDIR}/$1/weekly" ]; then mkdir "${BASEDIR}/$1/weekly"; fi
 		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/weekly/"
 		if [ "$(find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_W}" ]; then
-			find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" -mtime "+${MAX_W}" -delete
+			find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" ! -newermt "+${MAX_W}" -delete
 		fi
 	fi
 
@@ -45,7 +43,7 @@ function backups() {
 		if [ ! -d "${BASEDIR}/$1/monthly" ]; then mkdir "${BASEDIR}/$1/monthly"; fi
 		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
 		if [ "$(find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_M}" ]; then
-			find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" -mtime "+${MAX_M}" -delete
+			find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" ! -newermt "+${MAX_M}" -delete
 		fi
 	fi
 
