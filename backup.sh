@@ -75,8 +75,9 @@ if [ -f /usr/bin/flatpak ]; then flatpak list | sort > "/etc/pkgs-flatpak.txt"; 
 if [ -f /usr/bin/pacman ]; then pacman -Q > "/etc/pkgs-pacman.txt"; fi
 if [ -f /usr/bin/rpm ]; then rpm -qa | sort > "/etc/pkgs-rpm.txt"; fi
 if [ -f /usr/bin/snap ]; then snap list > "/etc/pkgs-snap.txt"; fi
-cat /var/spool/cron/* > /etc/crontabs.txt
+tar -C "/var/spool/cron" -cf "/etc/cron-spool.tar" .
 tar -C "/etc" -czf "${BASEDIR}/system/daily/etc-${BK_DATE}.tgz" .
+rm -f /etc/cron-spool.tar
 # /usr/local/bin ?
 backups system
 
