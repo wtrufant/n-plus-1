@@ -26,6 +26,7 @@ function backups() {
 
 	# Clean old dailies every day, if we have more than the max.
 	if [ "$(find "${BASEDIR}/$1/daily" -type f -name "*.tgz" | wc -l)" -gt "${MAX_D}" ]; then
+		logger "[n+1] Clear $1 daily ! newer +${MAX_D}"
 		find "${BASEDIR}/$1/daily" -type f -name "*.tgz" ! -newermt "+${MAX_D}" -delete
 	fi
 
@@ -34,6 +35,7 @@ function backups() {
 		if [ ! -d "${BASEDIR}/$1/weekly" ]; then mkdir "${BASEDIR}/$1/weekly"; fi
 		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/weekly/"
 		if [ "$(find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_W}" ]; then
+			logger "[n+1] Clear $1 weekly ! newer +${MAX_W}"
 			find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" ! -newermt "+${MAX_W}" -delete
 		fi
 	fi
@@ -43,6 +45,7 @@ function backups() {
 		if [ ! -d "${BASEDIR}/$1/monthly" ]; then mkdir "${BASEDIR}/$1/monthly"; fi
 		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
 		if [ "$(find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_M}" ]; then
+			logger "[n+1] Clear $1 monthly ! newer +${MAX_M}"
 			find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" ! -newermt "+${MAX_M}" -delete
 		fi
 	fi
@@ -72,7 +75,7 @@ if [ -f /usr/bin/flatpak ]; then flatpak list | sort > "/etc/pkgs-flatpak.txt"; 
 if [ -f /usr/bin/pacman ]; then pacman -Q > "/etc/pkgs-pacman.txt"; fi
 if [ -f /usr/bin/rpm ]; then rpm -qa | sort > "/etc/pkgs-rpm.txt"; fi
 if [ -f /usr/bin/snap ]; then snap list > "/etc/pkgs-snap.txt"; fi
-
+cat /var/spool/cron/* > /etc/crontabs.txt
 tar -C "/etc" -czf "${BASEDIR}/system/daily/etc-${BK_DATE}.tgz" .
 # /usr/local/bin ?
 backups system
@@ -95,6 +98,9 @@ backups users
 if [ ! -d "${BASEDIR}/nextcloud/daily" ]; then mkdir -p "${BASEDIR}/nextcloud/daily"; fi
 
 sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --on
+# https://help.nextcloud.com/t/which-folders-are-safe-to-exclude-from-backups/76218/3
 tar -C "${NC_PATH}" --exclude="${NC_EXCL}" -czf "${BASEDIR}/nextcloud/daily/nextcloud-${BK_DATE}.tgz" .
 sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --off
 backups nextcloud
+
+## This is an excellent time to do other NC maintenance.  Or maybe just after
