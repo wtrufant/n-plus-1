@@ -6,9 +6,11 @@
 # You can't hide secrets from the future with math.  https://youtu.be/yVm8oZx9WSM
 
 #TODO:
-# Logging
+# pigz? instead of compressing via tar
 # tar user dir exclusions, by user.
 # array to set "modules" to run via argument? or all by default?
+# Mikrotik configs
+# Pihole configs
 
 BASEDIR="$(dirname "$0")"
 
@@ -33,7 +35,7 @@ function backups() {
 	# Clean old weeklies on Sunday, if we have more than the max.
 	if [ "$(date +%u)" == "7" ]; then
 		if [ ! -d "${BASEDIR}/$1/weekly" ]; then mkdir "${BASEDIR}/$1/weekly"; fi
-		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/weekly/"
+		cp "${BASEDIR}/$1/daily/"*"-${BK_DATE}.tgz" "${BASEDIR}/$1/weekly/"
 		if [ "$(find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_W}" ]; then
 			logger "[n+1] Clear $1 weekly ! newer ${MAX_W_DATE}"
 			find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" ! -newermt "${MAX_W_DATE}" -delete
@@ -43,7 +45,7 @@ function backups() {
 	# Clean old montlies on the first of the month, if we have more than the max.
 	if [ "$(date +%d)" == "01" ]; then
 		if [ ! -d "${BASEDIR}/$1/monthly" ]; then mkdir "${BASEDIR}/$1/monthly"; fi
-		cp "${BASEDIR}/$1/daily/*-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
+		cp "${BASEDIR}/$1/daily/"*"-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
 		if [ "$(find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_M}" ]; then
 			logger "[n+1] Clear $1 monthly ! newer ${MAX_M_DATE}"
 			find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" ! -newermt "${MAX_M_DATE}" -delete
