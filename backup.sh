@@ -15,7 +15,7 @@
 BASEDIR="$(dirname "$0")"
 
 # shellcheck source=/dev/null
-source "${BASEDIR}/.config" || exit 1
+source "${BASEDIR}/_config/n-plus-1" || exit 1
 # Should probably do user detetection or "${SUDO_USER:-${USER}}" or something. But, it's likely root.
 
 # Generate date stamp, and calculate the max day values.  We subtract 1 due to how `find` handles values.  Also set the cutoff by day at midnight, since HH:MM:SS may not line up exactly.
@@ -42,7 +42,7 @@ function backups() {
 		fi
 	fi
 
-	# Clean old montlies on the first of the month, if we have more than the max.
+	# Clean old monthlies on the first of the month, if we have more than the max.
 	if [ "$(date +%d)" == "01" ]; then
 		if [ ! -d "${BASEDIR}/$1/monthly" ]; then mkdir "${BASEDIR}/$1/monthly"; fi
 		cp "${BASEDIR}/$1/daily/"*"-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
@@ -60,12 +60,26 @@ function backups() {
 shopt -s dotglob
 
 
+######## n-plus-1 ########
+if [ ! -d "${BASEDIR}/n-plus-1" ]; then mkdir -p "${BASEDIR}"/n-plus-1/{daily,weekly,monthly}; fi
+rsync -a "${BASEDIR}/_config/" "${BASEDIR}/n-plus-1/daily"
+backups n-plus-1
+
+
 #### MariaDB
 if [ ! -d "${BASEDIR}/mariadb/daily" ]; then mkdir -p "${BASEDIR}/mariadb/daily"; fi
 mariadb-backup --backup --target-dir="${BASEDIR}/mariadb/daily/${BK_DATE}" > /dev/null 2>&1 || { rm -rf "${BASEDIR:?}/mariadb/daily/${BK_DATE}"; echo "MariaDB Backup failed."; exit 1; }
 tar -C "${BASEDIR}/mariadb/daily/${BK_DATE}" -czf "${BASEDIR}/mariadb/daily/mariadb-${BK_DATE}.tgz" .
 rm -rf "${BASEDIR:?}/mariadb/daily/${BK_DATE}"
 backups mariadb
+
+
+######## MikroTik ########
+if "${BK_MT}"; then
+	if [ ! -d "${BASEDIR}/mikrotik" ]; then mkdir -p "${BASEDIR}"/mikrotik/{daily,weekly,monthly}; fi
+	ssh "${MT_SSH}" -i "${MT_PRI}" '/export' > "${BASEDIR}/mikrotik/${MT_DEV}-${BK_DATE}"
+	backups mikrotik
+fi
 
 
 #### System
@@ -93,6 +107,7 @@ for U in "${USERS[@]}"; do
 	tar -C "${USERDIR}" --exclude="${USER_EXCL}" -czf "${BASEDIR}/users/daily/${U}-${BK_DATE}.tgz" .
 done
 backups users
+
 
 #### WWW
 

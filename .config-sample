@@ -13,10 +13,24 @@ BUCKET="bucket_name" # rclone bucket
 export MYSQL_PWD='DB PW HERE' # https://mariadb.com/kb/en/mariadb-environment-variables/
 
 
+#### MikroTik
+BK_MT=false
+MT_DEV="devicename" # Label for device - don't use spaces.
+MT_PRI="/path/to/private_key" # can use _config/ to store keys.  Folder will be backed up.
+MT_SSH="user@host" # username and address of MikroTik
+MT_TCP="22" # SSH port
+
+# To generate a new pri/pub key: ssh-keygen -t ed25519 -f /backups/_config/ssh_bkup -C "n+1"
+# To create a user that can only SSH in from this machine ( replace 10.0.0.3 with the proper IP ):
+# ssh "${MT_SSH}" -p "${MT_TCP}" '/user/add name=RO-bkup group=read comment="Config Backup" address="10.0.0.3"; /file/print file=RO-pubkey.txt; /file/set RO-pubkey.txt contents="'"$(cat "${MT_PRI}")"'"; /user/ssh-keys/import user=RO-bkup public-key-file=RO-pubkey.txt'
+# Make sure you SSH as your backup user to the MikroTik to add it to the known hosts.
+
+
 #### NextCloud
 NC_USER="apache" # User that runs your webserver
 NC_PATH="/full/path/to/occ-folder" # Folder where the occ file lives
 NC_EXCL="" # Exclusions
+
 
 #### Users
 USERS=(primaryuser root) # User accounts to backup.  Assume: /root and /home/
