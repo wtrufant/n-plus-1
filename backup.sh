@@ -77,7 +77,7 @@ backups mariadb
 ######## MikroTik ########
 if "${BK_MT}"; then
 	if [ ! -d "${BASEDIR}/mikrotik" ]; then mkdir -p "${BASEDIR}"/mikrotik/{daily,weekly,monthly}; fi
-	ssh "${MT_SSH}" -i "${MT_PRI}" '/export' > "${BASEDIR}/mikrotik/${MT_DEV}-${BK_DATE}"
+	ssh "${MT_SSH}" -p "${MT_TCP}" -i "${MT_PRI}" '/export' > "${BASEDIR}/mikrotik/daily/${MT_DEV}-${BK_DATE}"
 	backups mikrotik
 fi
 
