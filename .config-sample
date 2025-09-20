@@ -27,6 +27,7 @@ MT_TCP="22" # SSH port
 
 
 #### NextCloud
+BK_NC=false # Set to true to enable NextCloud backups.
 NC_USER="apache" # User that runs your webserver
 NC_PATH="/full/path/to/occ-folder" # Folder where the occ file lives
 NC_EXCL="" # Exclusions

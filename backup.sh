@@ -9,7 +9,6 @@
 # pigz? instead of compressing via tar
 # tar user dir exclusions, by user.
 # array to set "modules" to run via argument? or all by default?
-# Mikrotik configs
 # Pihole configs
 
 BASEDIR="$(dirname "$0")"
@@ -112,13 +111,16 @@ backups users
 #### WWW
 
 
-### NextCloud
-if [ ! -d "${BASEDIR}/nextcloud/daily" ]; then mkdir -p "${BASEDIR}/nextcloud/daily"; fi
+######## NextCloud ########
+if "${BK_NC}"; then
+	if [ ! -d "${BASEDIR}/nextcloud/daily" ]; then mkdir -p "${BASEDIR}/nextcloud/daily"; fi
 
-sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --on
-# https://help.nextcloud.com/t/which-folders-are-safe-to-exclude-from-backups/76218/3
-tar -C "${NC_PATH}" --exclude="${NC_EXCL}" -czf "${BASEDIR}/nextcloud/daily/nextcloud-${BK_DATE}.tgz" .
-sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --off
+	sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --on
+	# https://help.nextcloud.com/t/which-folders-are-safe-to-exclude-from-backups/76218/3
+	tar -C "${NC_PATH}" --exclude="${NC_EXCL}" --exclude="data/updater-*" --use-compress-program="pigz -p $(nproc)" -cf "${BASEDIR}/nextcloud/daily/nextcloud-${BK_DATE}.tgz" .
+
+	sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --off
 backups nextcloud
 
-## This is an excellent time to do other NC maintenance.  Or maybe just after
+	## This is an excellent time to do other NC maintenance.  Or maybe just after
+fi
