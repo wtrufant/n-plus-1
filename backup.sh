@@ -6,7 +6,6 @@
 # You can't hide secrets from the future with math.  https://youtu.be/yVm8oZx9WSM
 
 #TODO:
-# pigz? instead of compressing via tar
 # tar user dir exclusions, by user.
 # array to set "modules" to run via argument? or all by default?
 # Pihole configs
@@ -61,7 +60,7 @@ shopt -s dotglob
 
 ######## n-plus-1 ########
 if [ ! -d "${BASEDIR}/n-plus-1" ]; then mkdir -p "${BASEDIR}"/n-plus-1/{daily,weekly,monthly}; fi
-rsync -a "${BASEDIR}/_config/" "${BASEDIR}/n-plus-1/daily"
+tar -C "${BASEDIR}/_config/" --use-compress-program="pigz -p $(nproc)" -cf "${BASEDIR}/n-plus-1/daily/nplus1-${BK_DATE}.tgz" .
 backups n-plus-1
 
 
