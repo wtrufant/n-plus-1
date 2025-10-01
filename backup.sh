@@ -25,18 +25,18 @@ MAX_M_DATE=$(date -d "-$((MAX_M * 30 - 1)) days" +%Y-%m-%d)
 function backups() {
 
 	# Clean old dailies every day, if we have more than the max.
-	if [ "$(find "${BASEDIR}/$1/daily" -type f -name "*.tgz" | wc -l)" -gt "${MAX_D}" ]; then
+	if [ "$(find "${BASEDIR}/$1/daily" -type f | wc -l)" -gt "${MAX_D}" ]; then
 		logger "[n+1] Clear $1 daily ! newer ${MAX_D_DATE}"
-		find "${BASEDIR}/$1/daily" -type f -name "*.tgz" ! -newermt "${MAX_D_DATE}" -delete
+		find "${BASEDIR}/$1/daily" -type f ! -newermt "${MAX_D_DATE}" -delete
 	fi
 
 	# Clean old weeklies on Sunday, if we have more than the max.
 	if [ "$(date +%u)" == "7" ]; then
 		if [ ! -d "${BASEDIR}/$1/weekly" ]; then mkdir "${BASEDIR}/$1/weekly"; fi
 		cp "${BASEDIR}/$1/daily/"*"-${BK_DATE}.tgz" "${BASEDIR}/$1/weekly/"
-		if [ "$(find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_W}" ]; then
+		if [ "$(find "${BASEDIR}/$1/weekly" -type f | wc -l)" -gt "${MAX_W}" ]; then
 			logger "[n+1] Clear $1 weekly ! newer ${MAX_W_DATE}"
-			find "${BASEDIR}/$1/weekly" -type f -name "*.tgz" ! -newermt "${MAX_W_DATE}" -delete
+			find "${BASEDIR}/$1/weekly" -type f ! -newermt "${MAX_W_DATE}" -delete
 		fi
 	fi
 
@@ -44,9 +44,9 @@ function backups() {
 	if [ "$(date +%d)" == "01" ]; then
 		if [ ! -d "${BASEDIR}/$1/monthly" ]; then mkdir "${BASEDIR}/$1/monthly"; fi
 		cp "${BASEDIR}/$1/daily/"*"-${BK_DATE}.tgz" "${BASEDIR}/$1/monthly/"
-		if [ "$(find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" | wc -l)" -gt "${MAX_M}" ]; then
+		if [ "$(find "${BASEDIR}/$1/monthly" -type f -| wc -l)" -gt "${MAX_M}" ]; then
 			logger "[n+1] Clear $1 monthly ! newer ${MAX_M_DATE}"
-			find "${BASEDIR}/$1/monthly" -type f -name "*.tgz" ! -newermt "${MAX_M_DATE}" -delete
+			find "${BASEDIR}/$1/monthly" -type f ! -newermt "${MAX_M_DATE}" -delete
 		fi
 	fi
 
