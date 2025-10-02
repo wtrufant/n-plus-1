@@ -9,6 +9,11 @@ REMOTE="remote_name" # rclone remote name
 BUCKET="bucket_name" # rclone bucket
 
 
+#### Home Assistant
+BK_HA=false
+HA_DIR="/path/to/homeassistant/backups"
+
+
 #### MariaDB
 export MYSQL_PWD='DB PW HERE' # https://mariadb.com/kb/en/mariadb-environment-variables/
 

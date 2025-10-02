@@ -119,7 +119,18 @@ if "${BK_NC}"; then
 	tar -C "${NC_PATH}" --exclude="${NC_EXCL}" --exclude="data/updater-*" --use-compress-program="pigz -p $(nproc)" -cf "${BASEDIR}/nextcloud/daily/nextcloud-${BK_DATE}.tgz" .
 
 	sudo -E -u "${NC_USER}" php "${NC_PATH}/occ" -q maintenance:mode --off
-backups nextcloud
+	backups nextcloud
 
 	## This is an excellent time to do other NC maintenance.  Or maybe just after
 fi
+
+
+######## Home Assistant ########
+if "${BK_HA}"; then
+	if [ ! -d "${BASEDIR}/haos" ]; then mkdir -p "${BASEDIR}"/haos/{daily,weekly,monthly}; fi
+	mv "${HA_DIR}"/*_backup_*.tar "${BASEDIR}"/haos/daily/
+	backups haos
+fi
+
+
+exit 0
